@@ -4,7 +4,7 @@ import plotly.express as px
 from datetime import datetime, time
 from PIL import Image
 import sqlite3
-from streamlit.components.v1 import html
+from streamlit_javascript import st_javascript  # Import the JS package for live client time
 
 st.set_page_config(page_title="Weight Loss Tracker", layout="wide")
 
@@ -96,19 +96,7 @@ def load_entries(table_name):
     conn.close()
     return df
 
-# --- Client-side time fetching component ---
-
-def get_client_time():
-    client_time_html = """
-    <script>
-    const dt = new Date();
-    document.body.innerHTML = `<p id="time" style="font-weight:bold;"></p>`;
-    document.getElementById('time').textContent = dt.toLocaleString();
-    </script>
-    """
-    return html(client_time_html, height=40, scrolling=False)
-
-# --- Initialize database and load data into session state ---
+# --- Initialize DB and load data to session ---
 
 init_db()
 
@@ -156,7 +144,7 @@ def display_food_tracker():
                 "meal_type": meal_type
             }
             insert_food_entry(entry)
-            st.session_state.food_entries.insert(0, entry)  # prepend for recent first
+            st.session_state.food_entries.insert(0, entry)
             st.success("Food entry logged!")
     if st.session_state.food_entries:
         df_food = pd.DataFrame(st.session_state.food_entries)
@@ -198,7 +186,6 @@ def display_weight_logger():
         df_weight = pd.DataFrame(st.session_state.weight_entries)
         st.subheader("Recent Weight Entries")
         st.dataframe(df_weight.head(10))
-        # Show latest weight
         df_weight_sorted = df_weight.sort_values(by=["date", "time"], ascending=[False, False])
         latest_weight = df_weight_sorted.iloc[0]["weight"]
         st.write(f"Latest weight: {latest_weight} kg")
@@ -261,12 +248,17 @@ def display_analytics():
     else:
         st.write("No sleep data to display")
 
-    # Client device time display
     st.markdown("---")
     st.subheader("Current Client Device Time (Live)")
-    get_client_time()
 
-# --- Page dispatch ---
+    # Live client time using streamlit-javascript
+    client_time = st_javascript("new Date().toLocaleString()", key="js_client_time")
+    if client_time:
+        st.write(client_time)
+    else:
+        st.write("Fetching client time...")
+
+# --- Page dispatcher ---
 
 if page == "Food Tracker":
     display_food_tracker()
