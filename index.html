@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weight Loss Tracking Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Health Tracker</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-tab="food-tracker">
+                    <span>📸</span> Food Tracker
+                </button>
+                <button class="nav-btn" data-tab="weight-logger">
+                    <span>⚖️</span> Weight Logger
+                </button>
+                <button class="nav-btn" data-tab="sleep-tracker">
+                    <span>😴</span> Sleep Tracker
+                </button>
+                <button class="nav-btn" data-tab="analytics">
+                    <span>📊</span> Analytics
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Food Tracker Section -->
+            <section id="food-tracker" class="content-section active">
+                <div class="section-header">
+                    <h1>Food Tracker</h1>
+                    <p>Upload food photos and track your nutrition</p>
+                </div>
+
+                <div class="food-upload-card card">
+                    <div class="card__body">
+                        <h3>Upload Food Photo</h3>
+                        <div class="upload-area">
+                            <input type="file" id="foodPhoto" accept="image/*" class="file-input">
+                            <label for="foodPhoto" class="upload-label">
+                                <span>📷</span>
+                                <p>Click to upload or drag and drop</p>
+                                <small>JPG, PNG, JPEG files accepted</small>
+                            </label>
+                        </div>
+                        <div id="imagePreview" class="image-preview hidden"></div>
+                        <div id="nutritionAnalysis" class="nutrition-analysis hidden">
+                            <h4>Nutrition Analysis</h4>
+                            <div class="detected-foods">
+                                <strong>Detected Foods:</strong>
+                                <span id="detectedFoodsList"></span>
+                            </div>
+                            <div class="nutrition-grid">
+                                <div class="nutrition-item">
+                                    <span class="label">Calories:</span>
+                                    <span id="calories">0</span> kcal
+                                </div>
+                                <div class="nutrition-item">
+                                    <span class="label">Protein:</span>
+                                    <span id="protein">0</span> g
+                                </div>
+                                <div class="nutrition-item">
+                                    <span class="label">Carbs:</span>
+                                    <span id="carbs">0</span> g
+                                </div>
+                                <div class="nutrition-item">
+                                    <span class="label">Fat:</span>
+                                    <span id="fat">0</span> g
+                                </div>
+                            </div>
+                            <div class="meal-logging-form">
+                                <div class="form-group">
+                                    <label class="form-label">Meal Type</label>
+                                    <select id="mealType" class="form-control">
+                                        <option value="Breakfast">Breakfast</option>
+                                        <option value="Lunch">Lunch</option>
+                                        <option value="Dinner">Dinner</option>
+                                        <option value="Snack">Snack</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" id="foodDate" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Time</label>
+                                    <input type="time" id="foodTime" class="form-control">
+                                </div>
+                                <button class="btn btn--primary" onclick="saveFoodEntry()">Log Food Entry</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-foods card">
+                    <div class="card__body">
+                        <h3>Recent Food Entries</h3>
+                        <div id="recentFoodsTable" class="data-table">
+                            <!-- Food entries will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Weight Logger Section -->
+            <section id="weight-logger" class="content-section">
+                <div class="section-header">
+                    <h1>Weight Logger</h1>
+                    <p>Track your weight throughout the day</p>
+                </div>
+
+                <div class="weight-entry-card card">
+                    <div class="card__body">
+                        <h3>Log Weight Entry</h3>
+                        <div class="weight-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Weight</label>
+                                    <div class="weight-input-group">
+                                        <input type="number" id="weightValue" class="form-control" step="0.1" placeholder="75.0">
+                                        <select id="weightUnit" class="form-control unit-selector">
+                                            <option value="kg">kg</option>
+                                            <option value="lbs">lbs</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Time</label>
+                                    <input type="time" id="weightTime" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Context</label>
+                                <select id="weightContext" class="form-control">
+                                    <option value="Wake up">Wake up</option>
+                                    <option value="Before breakfast">Before breakfast</option>
+                                    <option value="After breakfast">After breakfast</option>
+                                    <option value="Before lunch">Before lunch</option>
+                                    <option value="After lunch">After lunch</option>
+                                    <option value="Before dinner">Before dinner</option>
+                                    <option value="After dinner">After dinner</option>
+                                    <option value="Before gym">Before gym</option>
+                                    <option value="After gym">After gym</option>
+                                    <option value="Before sleep">Before sleep</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Notes</label>
+                                <textarea id="weightNotes" class="form-control" placeholder="Any additional notes..."></textarea>
+                            </div>
+                            <button class="btn btn--primary" onclick="saveWeightEntry()">Log Weight</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="weight-stats-grid">
+                    <div class="stat-card card">
+                        <div class="card__body">
+                            <h4>Latest Weight</h4>
+                            <div class="stat-value" id="latestWeight">-- kg</div>
+                        </div>
+                    </div>
+                    <div class="stat-card card">
+                        <div class="card__body">
+                            <h4>Change from Yesterday</h4>
+                            <div class="stat-value" id="weightChange">-- kg</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="todays-weights card">
+                    <div class="card__body">
+                        <h3>Today's Weight Entries</h3>
+                        <div id="todaysWeightsTable" class="data-table">
+                            <!-- Today's weights will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sleep Tracker Section -->
+            <section id="sleep-tracker" class="content-section">
+                <div class="section-header">
+                    <h1>Sleep Tracker</h1>
+                    <p>Monitor your sleep patterns and quality</p>
+                </div>
+
+                <div class="sleep-entry-card card">
+                    <div class="card__body">
+                        <h3>Log Sleep Data</h3>
+                        <div class="sleep-form">
+                            <div class="form-group">
+                                <label class="form-label">Date</label>
+                                <input type="date" id="sleepDate" class="form-control">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Sleep Time</label>
+                                    <input type="time" id="sleepTime" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Wake Time</label>
+                                    <input type="time" id="wakeTime" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sleep Quality (1-10)</label>
+                                <input type="range" id="sleepQuality" class="range-slider" min="1" max="10" value="7">
+                                <div class="range-value">Rating: <span id="qualityValue">7</span>/10</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Notes</label>
+                                <textarea id="sleepNotes" class="form-control" placeholder="How was your sleep?"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn btn--primary" onclick="saveSleepEntry()">Log Sleep Data</button>
+                                <button class="btn btn--outline" onclick="importAppleHealth()">Import from Apple Health</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-sleep card">
+                    <div class="card__body">
+                        <h3>Recent Sleep Entries</h3>
+                        <div id="recentSleepTable" class="data-table">
+                            <!-- Sleep entries will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Dashboard Section -->
+            <section id="analytics" class="content-section">
+                <div class="section-header">
+                    <h1>Analytics Dashboard</h1>
+                    <p>Visualize your health trends and progress</p>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="chart-card card">
+                        <div class="card__body">
+                            <h3>Weight Trend</h3>
+                            <div class="chart-container" style="position: relative; height: 300px;">
+                                <canvas id="weightChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card card">
+                        <div class="card__body">
+                            <h3>Daily Calories</h3>
+                            <div class="chart-container" style="position: relative; height: 300px;">
+                                <canvas id="caloriesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card card">
+                        <div class="card__body">
+                            <h3>Macronutrients</h3>
+                            <div class="chart-container" style="position: relative; height: 300px;">
+                                <canvas id="macroChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card card">
+                        <div class="card__body">
+                            <h3>Sleep Duration</h3>
+                            <div class="chart-container" style="position: relative; height: 300px;">
+                                <canvas id="sleepChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-cards">
+                        <div class="summary-card card">
+                            <div class="card__body">
+                                <h4>Average Weight</h4>
+                                <div class="summary-value" id="avgWeight">-- kg</div>
+                            </div>
+                        </div>
+                        <div class="summary-card card">
+                            <div class="card__body">
+                                <h4>Average Sleep</h4>
+                                <div class="summary-value" id="avgSleep">-- hrs</div>
+                            </div>
+                        </div>
+                        <div class="summary-card card">
+                            <div class="card__body">
+                                <h4>Daily Calories</h4>
+                                <div class="summary-value" id="avgCalories">-- kcal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="messageContainer" class="message-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
